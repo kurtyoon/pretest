@@ -1,5 +1,6 @@
 package dev.kurtyoon.pretest.domain.model;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +10,7 @@ public class Order {
     private final String customerName;
     private final String customerAddress;
     private final List<OrderItem> items = new ArrayList<>();
+    private final LocalDateTime orderedAt;
 
     /* -------------------------------------------------- */
     /* Constructor -------------------------------------- */
@@ -17,11 +19,13 @@ public class Order {
             Long id,
             String customerName,
             String customerAddress,
-            List<OrderItem> items
+            List<OrderItem> items,
+            LocalDateTime orderedAt
     ) {
         this.id = id;
         this.customerName = customerName;
         this.customerAddress = customerAddress;
+        this.orderedAt = orderedAt;
 
         if (items != null) {
             this.items.addAll(items);
@@ -45,5 +49,16 @@ public class Order {
 
     public List<OrderItem> getItems() {
         return items;
+    }
+
+    /* -------------------------------------------------- */
+    /* Static Method ------------------------------------ */
+    /* -------------------------------------------------- */
+    public static Order create(
+            String customerName,
+            String customerAddress,
+            List<OrderItem> items
+    ) {
+        return new Order(null, customerName, customerAddress, items, LocalDateTime.now());
     }
 }

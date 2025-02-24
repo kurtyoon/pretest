@@ -33,4 +33,14 @@ public class OrderItem {
     public int getQuantity() {
         return quantity;
     }
+
+    /* -------------------------------------------------- */
+    /* Static Method ------------------------------------ */
+    /* -------------------------------------------------- */
+    public static OrderItem create(
+            Long productId,
+            int quantity
+    ) {
+        return new OrderItem(null, productId, quantity);
+    }
 }
