@@ -2,6 +2,7 @@ package dev.kurtyoon.pretest.adapter.out.persistence.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +25,12 @@ public class OrderEntity {
     @Column(name = "customer_address")
     private String customerAddress;
 
+    @Column(name = "total_price")
+    private Integer totalPrice;
+
+    @Column(name =  "ordered_at")
+    private LocalDateTime orderedAt;
+
     /* -------------------------------------------------- */
     /* Relation Column - Child -------------------------- */
     /* -------------------------------------------------- */
@@ -37,10 +44,14 @@ public class OrderEntity {
 
     private OrderEntity(
             String customerName,
-            String customerAddress
+            String customerAddress,
+            Integer totalPrice,
+            LocalDateTime orderedAt
     ) {
         this.customerName = customerName;
         this.customerAddress = customerAddress;
+        this.totalPrice = totalPrice;
+        this.orderedAt = orderedAt;
     }
 
     /* -------------------------------------------------- */
@@ -56,6 +67,14 @@ public class OrderEntity {
 
     public String getCustomerAddress() {
         return customerAddress;
+    }
+
+    public Integer getTotalPrice() {
+        return totalPrice;
+    }
+
+    public LocalDateTime getOrderedAt() {
+        return orderedAt;
     }
 
     public List<OrderItemEntity> getOrderItems() {
@@ -76,9 +95,11 @@ public class OrderEntity {
     public static OrderEntity create(
             String customerName,
             String customerAddress,
+            Integer totalPrice,
+            LocalDateTime orderedAt,
             List<OrderItemEntity> items
     ) {
-        OrderEntity order = new OrderEntity(customerName, customerAddress);
+        OrderEntity order = new OrderEntity(customerName, customerAddress, totalPrice, orderedAt);
 
         for (OrderItemEntity item: items) {
             order.addOrderItem(item);

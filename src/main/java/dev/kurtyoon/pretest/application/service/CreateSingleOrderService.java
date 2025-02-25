@@ -12,11 +12,10 @@ import dev.kurtyoon.pretest.core.exception.error.ErrorCode;
 import dev.kurtyoon.pretest.domain.Order;
 import dev.kurtyoon.pretest.domain.OrderItem;
 import dev.kurtyoon.pretest.domain.Product;
-import dev.kurtyoon.pretest.domain.service.OrderService;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CreateSingleOrderService implements CreateSingleOrderUseCase {
@@ -25,57 +24,64 @@ public class CreateSingleOrderService implements CreateSingleOrderUseCase {
     private final OrderRepositoryPort orderRepositoryPort;
     private final ProductRepositoryPort productRepositoryPort;
 
-    private final OrderService orderService;
-
     public CreateSingleOrderService(
             LockPort lockPort,
             OrderRepositoryPort orderRepositoryPort,
-            ProductRepositoryPort productRepositoryPort,
-            OrderService orderService
+            ProductRepositoryPort productRepositoryPort
     ) {
         this.lockPort = lockPort;
         this.orderRepositoryPort = orderRepositoryPort;
         this.productRepositoryPort = productRepositoryPort;
-        this.orderService = orderService;
     }
 
     @Override
     public SingleOrderResult execute(OrderCommand command) {
 
-        List<Long> productIdList = command.items().stream()
-                .map(OrderItemCommand::productId)
-                .toList();
+        String orderLockKey = getOrderLockKey(command.customerAddress());
+        lockPort.lock(orderLockKey);
 
-        List<Product> productList = getValidateProducts(productIdList);
+        try {
+            List<Long> productIdList = command.items().stream()
+                    .map(OrderItemCommand::productId)
+                    .toList();
 
-        Order order = createOrder(command);
+            List<Product> productList = productRepositoryPort.findAllByIdList(productIdList);
+            Map<Long, Product> productMap = productList.stream()
+                    .collect(Collectors.toMap(Product::getId, product -> product));
 
-        orderService.validateOrderWithProductList(order, productList);
+            Order order = createOrder(command, productMap);
 
-        updateStock(order.getItems(), productList);
+            updateStock(order.getItems(), productMap);
 
-        Order savedOrder = orderRepositoryPort.saveOrder(order);
+            Order savedOrder = orderRepositoryPort.saveOrder(order);
 
-        return SingleOrderResult.of(savedOrder);
-    }
+            return SingleOrderResult.of(savedOrder);
 
-    private List<Product> getValidateProducts(List<Long> productIdList) {
-        List<Product> productList = productRepositoryPort.findAllByIdList(productIdList);
-
-        if (productList.size() != productIdList.size()) {
-            throw new RuntimeException("상품 정보가 일치하지 않음");
+        } finally {
+            lockPort.unlock(orderLockKey);
         }
-
-        return productList;
     }
 
-    private Order createOrder(OrderCommand command) {
+    private Order createOrder(
+            OrderCommand command,
+            Map<Long, Product> productMap
+    ) {
         List<OrderItem> orderItemList = command.items().stream()
-                .map(item -> OrderItem.create(
-                        item.productId(),
-                        item.productName(),
-                        item.quantity()
-                )).toList();
+                .map(item -> {
+                    Product product = productMap.get(item.productId());
+
+                    if (product == null) {
+                        throw new CommonException(ErrorCode.NOT_FOUND_PRODUCT);
+                    }
+
+                    return OrderItem.create(
+                            item.productId(),
+                            product.getName(),
+                            item.quantity(),
+                            product.getPrice()
+                    );
+
+                }).toList();
 
         return Order.create(
                 command.customerName(),
@@ -86,40 +92,30 @@ public class CreateSingleOrderService implements CreateSingleOrderUseCase {
 
     private void updateStock(
             List<OrderItem> orderItemList,
-            List<Product> productList
+            Map<Long, Product> productMap
     ) {
-        List<Long> sortedProductIdList = orderItemList.stream()
-                .map(OrderItem::getProductId)
-                .distinct()
-                .sorted()
-                .toList();
+        for (OrderItem item : orderItemList) {
+            Product product = productMap.get(item.getProductId());
 
-        try {
-            // 상품별로 lock 설정
-            sortedProductIdList.forEach(id -> lockPort.lock(getProductLockKey(id)));
+            if (product.getQuantity() < item.getQuantity()) {
+                throw new CommonException(ErrorCode.OUT_OF_STOCK);
+            }
 
-            // 재고 처리
-            orderItemList.forEach(orderItem -> {
-                Product product = findProductById(productList, orderItem.getProductId());
+            product.reduceStock(item.getQuantity());
+        }
 
-                product.reduceStock(orderItem.getQuantity());
-                productRepositoryPort.saveProduct(product);
-            });
-        } finally {
-            sortedProductIdList.stream()
-                    .sorted(Comparator.reverseOrder())
-                    .forEach(id -> lockPort.unlock(getProductLockKey(id)));
+        productRepositoryPort.saveAllProducts(productMap.values().stream().toList());
+    }
+
+    private void validateDuplicate(List<Long> productIdList) {
+        Set<Long> distinct = new HashSet<>(productIdList);
+
+        if (distinct.size() != productIdList.size()) {
+            throw new CommonException(ErrorCode.DUPLICATE_PRODUCT_ORDER);
         }
     }
 
-    private Product findProductById(List<Product> productList, Long productId) {
-        return productList.stream()
-                .filter(p -> p.getId().equals(productId))
-                .findFirst()
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_PRODUCT));
-    }
-
-    private String getProductLockKey(Long productId) {
-        return "PRODUCT_" + productId;
+    private String getOrderLockKey(String key) {
+        return "ORDER_LOCK" + key;
     }
 }

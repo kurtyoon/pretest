@@ -2,6 +2,8 @@ package dev.kurtyoon.pretest.adapter.out.persistence.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "products")
 public class ProductEntity {
@@ -20,7 +22,16 @@ public class ProductEntity {
     private String name;
 
     @Column(name = "quantity")
-    private int quantity;
+    private Integer quantity;
+
+    @Column(name = "price")
+    private Integer price;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     /* -------------------------------------------------- */
     /* Constructor -------------------------------------- */
@@ -29,10 +40,16 @@ public class ProductEntity {
 
     private ProductEntity(
             String name,
-            int quantity
+            Integer quantity,
+            Integer price,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt
     ) {
         this.name = name;
         this.quantity = quantity;
+
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     /* -------------------------------------------------- */
@@ -46,14 +63,26 @@ public class ProductEntity {
         return name;
     }
 
-    public int getQuantity() {
+    public Integer getQuantity() {
         return quantity;
+    }
+
+    public Integer getPrice() {
+        return price;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
     /* -------------------------------------------------- */
     /* Functions ---------------------------------------- */
     /* -------------------------------------------------- */
-    public void updateQuantity(int quantity) {
+    public void updateQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 
@@ -62,9 +91,12 @@ public class ProductEntity {
     /* -------------------------------------------------- */
     public static ProductEntity create(
             String name,
-            int quantity
+            Integer quantity,
+            Integer price,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt
     ) {
-        return new ProductEntity(name, quantity);
+        return new ProductEntity(name, quantity, price, createdAt, updatedAt);
     }
 }
 

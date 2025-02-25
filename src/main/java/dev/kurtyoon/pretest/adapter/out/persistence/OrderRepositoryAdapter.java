@@ -38,6 +38,7 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort {
     }
 
     @Override
+    @Transactional
     public List<Order> saveAllOrder(List<Order> orderList) {
         List<OrderEntity> orderEntityList = orderList.stream()
                 .map(this::toEntity)
@@ -58,6 +59,8 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort {
         return OrderEntity.create(
                 order.getCustomerName(),
                 order.getCustomerAddress(),
+                order.getTotalPrice(),
+                order.getOrderedAt(),
                 orderItemEntityList
         );
     }
@@ -67,7 +70,7 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort {
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_PRODUCT));
 
         return OrderItemEntity.create(
-            productEntity, orderItem.getQuantity()
+            productEntity, orderItem.getQuantity(), orderItem.getPrice(), orderItem.getTotalPrice()
         );
     }
 
@@ -89,7 +92,8 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort {
                 entity.getId(),
                 entity.getProduct().getId(),
                 entity.getProduct().getName(),
-                entity.getQuantity()
+                entity.getQuantity(),
+                entity.getProduct().getPrice()
         );
     }
 }

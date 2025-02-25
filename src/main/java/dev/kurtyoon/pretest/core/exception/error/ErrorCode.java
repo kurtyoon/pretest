@@ -13,6 +13,7 @@ public enum ErrorCode {
     INVALID_PART_FORMAT(40000, HttpStatus.BAD_REQUEST, "요청 파트의 형식이 올바르지 않습니다."),
     INVALID_QUANTITY(40000, HttpStatus.BAD_REQUEST, "주문 수량은 0보다 커야합니다."),
     INVALID_ORDER(40000, HttpStatus.BAD_REQUEST, "요청 주문이 올바르지 않습니다."),
+    DUPLICATE_PRODUCT_ORDER(40000, HttpStatus.BAD_REQUEST, "동일 상품에 대한 여러 주문은 불가능합니다."),
 
     // Not Found Error
     NOT_FOUND_END_POINT(40400, HttpStatus.NOT_FOUND, "요청 엔드포인트가 존재하지 않습니다."),

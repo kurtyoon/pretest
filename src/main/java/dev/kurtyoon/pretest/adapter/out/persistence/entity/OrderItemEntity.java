@@ -17,7 +17,13 @@ public class OrderItemEntity {
     /* Information Column ------------------------------- */
     /* -------------------------------------------------- */
     @Column(name = "quantity")
-    private int quantity;
+    private Integer quantity;
+
+    @Column(name = "price")
+    private Integer price;
+
+    @Column(name = "total_price")
+    private Integer totalPrice;
 
     /* -------------------------------------------------- */
     /* Constructor -------------------------------------- */
@@ -26,10 +32,14 @@ public class OrderItemEntity {
 
     private OrderItemEntity(
         ProductEntity product,
-        int quantity
+        Integer quantity,
+        Integer price,
+        Integer totalPrice
     ) {
         this.product = product;
         this.quantity = quantity;
+        this.price = price;
+        this.totalPrice = totalPrice;
     }
 
     /* -------------------------------------------------- */
@@ -62,6 +72,14 @@ public class OrderItemEntity {
         return product;
     }
 
+    public Integer getPrice() {
+        return price;
+    }
+
+    public Integer getTotalPrice() {
+        return totalPrice;
+    }
+
     /* -------------------------------------------------- */
     /* Update Order ------------------------------------- */
     /* -------------------------------------------------- */
@@ -74,8 +92,10 @@ public class OrderItemEntity {
     /* -------------------------------------------------- */
     public static OrderItemEntity create(
             ProductEntity product,
-            int quantity
+            Integer quantity,
+            Integer price,
+            Integer totalPrice
     ) {
-        return new OrderItemEntity(product, quantity);
+        return new OrderItemEntity(product, quantity, price, totalPrice);
     }
 }
