@@ -51,4 +51,13 @@ public class OrderItem {
     ) {
         return new OrderItem(null, productId, productName, quantity);
     }
+
+    public static OrderItem create(
+            Long id,
+            Long productId,
+            String productName,
+            int quantity
+    ) {
+        return new OrderItem(id, productId, productName, quantity);
+    }
 }

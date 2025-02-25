@@ -1,12 +1,12 @@
 package dev.kurtyoon.pretest.application.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import dev.kurtyoon.pretest.core.dto.SelfValidating;
 import dev.kurtyoon.pretest.domain.model.Order;
-import dev.kurtyoon.pretest.domain.model.OrderItem;
 
 import java.util.List;
 
-public class BulkOrderResult {
+public class BulkOrderResult extends SelfValidating<BulkOrderResult> {
 
     @JsonProperty("total_orders")
     private final int totalOrders;
@@ -25,6 +25,8 @@ public class BulkOrderResult {
         this.totalOrders = totalOrders;
         this.successOrders = successOrders;
         this.failedOrders = failedOrders;
+
+        this.validateSelf();
     }
 
     public static BulkOrderResult of(List<Order> successOrders, List<FailedOrderResult> failedOrders) {

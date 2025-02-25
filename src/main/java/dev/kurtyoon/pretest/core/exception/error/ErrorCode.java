@@ -14,9 +14,13 @@ public enum ErrorCode {
 
     // Not Found Error
     NOT_FOUND_END_POINT(40400, HttpStatus.NOT_FOUND, "요청 엔드포인트가 존재하지 않습니다."),
+    NOT_FOUND_PRODUCT(40401, HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
+
+    OUT_OF_STOCK(40900, HttpStatus.CONFLICT, "상품의 재고가 부족합니다."),
 
     // Internal Server Error
     INTERNAL_SERVER_ERROR(50000, HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 에러입니다."),
+    INTERNAL_DATA_ERROR(50000, HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 데이터 에러입니다."),
 
     ;
 

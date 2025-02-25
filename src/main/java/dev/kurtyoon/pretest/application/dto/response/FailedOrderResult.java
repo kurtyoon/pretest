@@ -1,8 +1,9 @@
 package dev.kurtyoon.pretest.application.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import dev.kurtyoon.pretest.core.dto.SelfValidating;
 
-public class FailedOrderResult {
+public class FailedOrderResult extends SelfValidating<FailedOrderResult> {
 
     @JsonProperty("customer_name")
     private final String customerName;
@@ -21,6 +22,8 @@ public class FailedOrderResult {
         this.customerName = customerName;
         this.customerAddress = customerAddress;
         this.reason = reason;
+
+        this.validateSelf();
     }
 
     public static FailedOrderResult of(

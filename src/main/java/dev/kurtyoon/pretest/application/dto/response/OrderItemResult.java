@@ -1,9 +1,10 @@
 package dev.kurtyoon.pretest.application.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import dev.kurtyoon.pretest.core.dto.SelfValidating;
 import dev.kurtyoon.pretest.domain.model.OrderItem;
 
-public class OrderItemResult {
+public class OrderItemResult extends SelfValidating<OrderItemResult> {
 
     @JsonProperty("product_id")
     private final Long productId;
@@ -22,6 +23,8 @@ public class OrderItemResult {
         this.productId = productId;
         this.productName = productName;
         this.quantity = quantity;
+
+        this.validateSelf();
     }
 
     public static OrderItemResult of(OrderItem orderItem) {

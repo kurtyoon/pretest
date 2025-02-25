@@ -1,5 +1,7 @@
 package dev.kurtyoon.pretest.domain.service;
 
+import dev.kurtyoon.pretest.core.exception.CommonException;
+import dev.kurtyoon.pretest.core.exception.error.ErrorCode;
 import dev.kurtyoon.pretest.domain.model.Order;
 import dev.kurtyoon.pretest.domain.model.OrderItem;
 import dev.kurtyoon.pretest.domain.model.Product;
@@ -26,12 +28,12 @@ public class OrderService {
 
             // 상품이 존재하지 않는 경우
             if (product == null) {
-                throw new RuntimeException("Product not found: " + orderItem.getProductId());
+                throw new CommonException(ErrorCode.NOT_FOUND_PRODUCT);
             }
 
             // 재고가 부족한 경우
             if (product.getQuantity() < orderItem.getQuantity()) {
-                throw new RuntimeException("Insufficient stock: " + product.getId());
+                throw new CommonException(ErrorCode.OUT_OF_STOCK);
             }
         }
     }

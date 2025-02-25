@@ -61,4 +61,13 @@ public class Order {
     ) {
         return new Order(null, customerName, customerAddress, items, LocalDateTime.now());
     }
+
+    public static Order create(
+            Long id,
+            String customerName,
+            String customerAddress,
+            List<OrderItem> items
+    ) {
+        return new Order(id, customerName, customerAddress, items, LocalDateTime.now());
+    }
 }

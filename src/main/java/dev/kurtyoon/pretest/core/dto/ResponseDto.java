@@ -1,29 +1,29 @@
 package dev.kurtyoon.pretest.core.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.kurtyoon.pretest.core.exception.CommonException;
 import dev.kurtyoon.pretest.core.exception.error.ErrorCode;
 import jakarta.annotation.Nullable;
 import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
-public class ResponseDto<T> {
+public class ResponseDto<T> extends SelfValidating<ResponseDto<T>> {
 
     @JsonIgnore
     private final HttpStatus httpStatus;
 
-    @NotNull
+    @JsonProperty("success")
     private final Boolean success;
 
-    @Nullable
+    @JsonProperty("data")
     private final T data;
 
-    @Nullable
+    @JsonProperty("error")
     private final ExceptionDto error;
 
     public ResponseDto(
@@ -36,6 +36,8 @@ public class ResponseDto<T> {
         this.success = success;
         this.data = data;
         this.error = error;
+
+        this.validateSelf();
     }
 
     public static <T> ResponseDto<T> created(@Nullable final T data) {

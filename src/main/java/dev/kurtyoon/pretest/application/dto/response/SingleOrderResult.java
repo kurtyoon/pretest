@@ -1,12 +1,13 @@
 package dev.kurtyoon.pretest.application.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import dev.kurtyoon.pretest.core.dto.SelfValidating;
 import dev.kurtyoon.pretest.domain.model.Order;
 import dev.kurtyoon.pretest.domain.model.OrderItem;
 
 import java.util.List;
 
-public class SingleOrderResult {
+public class SingleOrderResult extends SelfValidating<SingleOrderResult> {
 
     @JsonProperty("order_id")
     private final Long orderId;
@@ -31,6 +32,8 @@ public class SingleOrderResult {
         this.customerAddress = customerAddress;
 
         this.products = products;
+
+        this.validateSelf();
     }
 
     public static SingleOrderResult of(Order order) {

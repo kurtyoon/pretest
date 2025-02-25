@@ -41,4 +41,12 @@ public class Product {
     public void reduceStock(int quantity) {
         this.quantity -= quantity;
     }
+
+    public static Product create(
+            Long id,
+            String name,
+            int quantity
+    ) {
+        return new Product(id, name, quantity);
+    }
 }
