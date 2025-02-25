@@ -1,6 +1,6 @@
 package dev.kurtyoon.pretest.application.port.out;
 
-import dev.kurtyoon.pretest.domain.model.Product;
+import dev.kurtyoon.pretest.domain.Product;
 
 import java.util.List;
 

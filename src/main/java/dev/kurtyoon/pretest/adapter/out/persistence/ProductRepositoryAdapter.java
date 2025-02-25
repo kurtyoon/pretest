@@ -4,7 +4,7 @@ import dev.kurtyoon.pretest.adapter.out.persistence.entity.ProductEntity;
 import dev.kurtyoon.pretest.adapter.out.persistence.repository.ProductJpaRepository;
 import dev.kurtyoon.pretest.application.port.out.ProductRepositoryPort;
 import dev.kurtyoon.pretest.core.annotation.Adapter;
-import dev.kurtyoon.pretest.domain.model.Product;
+import dev.kurtyoon.pretest.domain.Product;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

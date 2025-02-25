@@ -9,9 +9,9 @@ import dev.kurtyoon.pretest.application.port.out.OrderRepositoryPort;
 import dev.kurtyoon.pretest.application.port.out.ProductRepositoryPort;
 import dev.kurtyoon.pretest.core.exception.CommonException;
 import dev.kurtyoon.pretest.core.exception.error.ErrorCode;
-import dev.kurtyoon.pretest.domain.model.Order;
-import dev.kurtyoon.pretest.domain.model.OrderItem;
-import dev.kurtyoon.pretest.domain.model.Product;
+import dev.kurtyoon.pretest.domain.Order;
+import dev.kurtyoon.pretest.domain.OrderItem;
+import dev.kurtyoon.pretest.domain.Product;
 import dev.kurtyoon.pretest.domain.service.OrderService;
 import org.springframework.stereotype.Service;
 

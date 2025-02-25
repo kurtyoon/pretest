@@ -11,6 +11,8 @@ public enum ErrorCode {
     INVALID_PARAMETER_FORMAT(40000, HttpStatus.BAD_REQUEST, "요청 파라미터의 형식이 올바르지 않습니다."),
     MISSING_REQUEST_PART(40000, HttpStatus.BAD_REQUEST, "필수 요청 파트가 누락되었습니다."),
     INVALID_PART_FORMAT(40000, HttpStatus.BAD_REQUEST, "요청 파트의 형식이 올바르지 않습니다."),
+    INVALID_QUANTITY(40000, HttpStatus.BAD_REQUEST, "주문 수량은 0보다 커야합니다."),
+    INVALID_ORDER(40000, HttpStatus.BAD_REQUEST, "요청 주문이 올바르지 않습니다."),
 
     // Not Found Error
     NOT_FOUND_END_POINT(40400, HttpStatus.NOT_FOUND, "요청 엔드포인트가 존재하지 않습니다."),

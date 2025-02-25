@@ -2,7 +2,7 @@ package dev.kurtyoon.pretest.application.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.kurtyoon.pretest.core.dto.SelfValidating;
-import dev.kurtyoon.pretest.domain.model.OrderItem;
+import dev.kurtyoon.pretest.domain.OrderItem;
 
 public class OrderItemResult extends SelfValidating<OrderItemResult> {
 

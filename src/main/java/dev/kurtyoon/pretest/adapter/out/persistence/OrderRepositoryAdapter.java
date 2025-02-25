@@ -9,8 +9,8 @@ import dev.kurtyoon.pretest.application.port.out.OrderRepositoryPort;
 import dev.kurtyoon.pretest.core.annotation.Adapter;
 import dev.kurtyoon.pretest.core.exception.CommonException;
 import dev.kurtyoon.pretest.core.exception.error.ErrorCode;
-import dev.kurtyoon.pretest.domain.model.Order;
-import dev.kurtyoon.pretest.domain.model.OrderItem;
+import dev.kurtyoon.pretest.domain.Order;
+import dev.kurtyoon.pretest.domain.OrderItem;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

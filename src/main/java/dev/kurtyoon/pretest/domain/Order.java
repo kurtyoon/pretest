@@ -1,7 +1,10 @@
-package dev.kurtyoon.pretest.domain.model;
+package dev.kurtyoon.pretest.domain;
+
+import dev.kurtyoon.pretest.core.exception.CommonException;
+import dev.kurtyoon.pretest.core.exception.error.ErrorCode;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Order {
@@ -9,7 +12,8 @@ public class Order {
     private final Long id;
     private final String customerName;
     private final String customerAddress;
-    private final List<OrderItem> items = new ArrayList<>();
+    private final List<OrderItem> items;
+    private final int totalPrice;
     private final LocalDateTime orderedAt;
 
     /* -------------------------------------------------- */
@@ -22,14 +26,17 @@ public class Order {
             List<OrderItem> items,
             LocalDateTime orderedAt
     ) {
+
+        if (items == null || items.isEmpty()) {
+            throw new CommonException(ErrorCode.INVALID_ORDER);
+        }
+
         this.id = id;
         this.customerName = customerName;
         this.customerAddress = customerAddress;
+        this.items = Collections.unmodifiableList(items);
+        this.totalPrice = calculateTotalPrice(items);
         this.orderedAt = orderedAt;
-
-        if (items != null) {
-            this.items.addAll(items);
-        }
     }
 
     /* -------------------------------------------------- */
@@ -51,8 +58,25 @@ public class Order {
         return items;
     }
 
+    public int getTotalPrice() {
+        return totalPrice;
+    }
+
+    public LocalDateTime getOrderedAt() {
+        return orderedAt;
+    }
+
     /* -------------------------------------------------- */
-    /* Static Method ------------------------------------ */
+    /* Functions ---------------------------------------- */
+    /* -------------------------------------------------- */
+    private int calculateTotalPrice(List<OrderItem> items) {
+        return items.stream()
+                .mapToInt(OrderItem::getTotalPrice)
+                .sum();
+    }
+
+    /* -------------------------------------------------- */
+    /* Static Factory Method ---------------------------- */
     /* -------------------------------------------------- */
     public static Order create(
             String customerName,
