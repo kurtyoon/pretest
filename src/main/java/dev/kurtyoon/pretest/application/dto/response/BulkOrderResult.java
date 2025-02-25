@@ -30,7 +30,7 @@ public class BulkOrderResult {
     public static BulkOrderResult of(List<Order> successOrders, List<FailedOrderResult> failedOrders) {
 
         List<SingleOrderResult> successOrderResults = successOrders.stream()
-                .map(order -> SingleOrderResult.of(order, order.getItems()))
+                .map(SingleOrderResult::of)
                 .toList();
 
         return new BulkOrderResult(
