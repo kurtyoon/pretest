@@ -84,15 +84,17 @@ public class Product {
             Long id,
             String name,
             int quantity,
-            int price
+            int price,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt
     ) {
         return new Product(
                 id,
                 name,
                 quantity,
                 price,
-                LocalDateTime.now(),
-                LocalDateTime.now()
+                createdAt,
+                updatedAt
         );
     }
 }

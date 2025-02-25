@@ -45,6 +45,9 @@ public class CreateSingleOrderService implements CreateSingleOrderUseCase {
                     .map(OrderItemCommand::productId)
                     .toList();
 
+            // 중복된 상품이 존재하는지 검증
+            validateDuplicate(productIdList);
+
             List<Product> productList = productRepositoryPort.findAllByIdList(productIdList);
             Map<Long, Product> productMap = productList.stream()
                     .collect(Collectors.toMap(Product::getId, product -> product));

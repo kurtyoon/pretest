@@ -61,7 +61,14 @@ public class ProductRepositoryAdapter implements ProductRepositoryPort {
     }
 
     private Product toDomain(ProductEntity entity) {
-        return Product.create(entity.getId(), entity.getName(), entity.getQuantity(), entity.getPrice());
+        return Product.create(
+                entity.getId(),
+                entity.getName(),
+                entity.getQuantity(),
+                entity.getPrice(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
+        );
     }
 
     private ProductEntity toEntity(Product product) {
@@ -75,7 +82,7 @@ public class ProductRepositoryAdapter implements ProductRepositoryPort {
     }
 
     private ProductEntity updateEntity(ProductEntity entity, Product product) {
-        entity.updateQuantity(product.getQuantity());
+        entity.updateQuantity(product.getQuantity(), product.getUpdatedAt());
         return entity;
     }
 

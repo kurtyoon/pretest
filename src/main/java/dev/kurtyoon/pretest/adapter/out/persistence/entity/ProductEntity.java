@@ -82,8 +82,12 @@ public class ProductEntity {
     /* -------------------------------------------------- */
     /* Functions ---------------------------------------- */
     /* -------------------------------------------------- */
-    public void updateQuantity(Integer quantity) {
+    public void updateQuantity(
+            Integer quantity,
+            LocalDateTime updatedAt
+    ) {
         this.quantity = quantity;
+        this.updatedAt = updatedAt;
     }
 
     /* -------------------------------------------------- */
