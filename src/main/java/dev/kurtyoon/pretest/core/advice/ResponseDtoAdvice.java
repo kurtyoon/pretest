@@ -1,7 +1,6 @@
 package dev.kurtyoon.pretest.core.advice;
 
 import dev.kurtyoon.pretest.core.dto.ResponseDto;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

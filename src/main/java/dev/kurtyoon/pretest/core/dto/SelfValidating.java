@@ -18,6 +18,7 @@ public abstract class SelfValidating<T> {
         validator = factory.getValidator();
     }
 
+    @SuppressWarnings("unchecked")
     protected void validateSelf() {
         Set<ConstraintViolation<T>> violations = validator.validate((T) this);
         if (!violations.isEmpty()) {
