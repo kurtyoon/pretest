@@ -44,22 +44,21 @@ public class CreateBulkOrderService implements CreateBulkOrderUseCase {
     @Override
     public BulkOrderResult execute(byte[] excelData) {
 
+        // 1. Excel 데이터 파싱
         List<OrderCommand> commandList = excelParserPort.parse(excelData);
-
         if (commandList.isEmpty()) {
             return BulkOrderResult.empty();
         }
 
-        Set<Long> productIdSet = extractProductIdSet(commandList);
-
-        List<Long> sortedIdList = productIdSet.stream().sorted().toList();
-        sortedIdList.forEach(id -> lockPort.lock(getProductLockKey(id)));
+        // 2. 단일 락 획득
+        lockPort.lock("BULK_ORDER");
 
         List<Order> successOrders = new ArrayList<>();
-        List<FailedOrderResult> failedOrders = new ArrayList<>();
+        List<FailedOrderResult> failedOrderResults = new ArrayList<>();
 
         try {
-            List<Product> productList = productRepositoryPort.findAllByIdList(sortedIdList);
+            Set<Long> productIdSet = extractProductIdSet(commandList);
+            List<Product> productList = productRepositoryPort.findAllByIdList(new ArrayList<>(productIdSet));
             Map<Long, Product> productMap = productList.stream()
                     .collect(Collectors.toMap(Product::getId, product -> product));
 
@@ -67,13 +66,15 @@ public class CreateBulkOrderService implements CreateBulkOrderUseCase {
                 try {
                     Order order = createOrder(command);
 
-                    orderService.validateOrderWithProductList(order, new ArrayList<>());
+                    // 재고 검증
+                    orderService.validateOrderWithProductList(order, productList);
 
+                    // 재고 차감
                     reduceStock(order.getItems(), productMap);
 
                     successOrders.add(order);
-                } catch (RuntimeException e) {
-                    failedOrders.add(FailedOrderResult.of(
+                } catch (Exception e) {
+                    failedOrderResults.add(FailedOrderResult.of(
                             command.customerName(),
                             command.customerAddress(),
                             e.getMessage()
@@ -82,42 +83,43 @@ public class CreateBulkOrderService implements CreateBulkOrderUseCase {
             }
 
             productRepositoryPort.saveAllProducts(new ArrayList<>(productMap.values()));
-            orderRepositoryPort.saveAllOrder(successOrders);
-        } finally {
-            sortedIdList.stream()
-                    .sorted(Comparator.reverseOrder())
-                    .forEach(id -> lockPort.unlock(getProductLockKey(id)));
-        }
+            List<Order> savedOrders = orderRepositoryPort.saveAllOrder(successOrders);
 
-        return BulkOrderResult.of(successOrders, failedOrders);
+            return BulkOrderResult.of(savedOrders, failedOrderResults);
+        } finally {
+            lockPort.unlock("BULK_ORDER");
+        }
     }
 
-    private Order createOrder(OrderCommand cmd) {
-        List<OrderItem> orderItems = cmd.items().stream()
+    private Order createOrder(OrderCommand command) {
+        List<OrderItem> orderItemList = command.items().stream()
                 .map(item -> OrderItem.create(
                         item.productId(),
                         item.productName(),
-                        item.quantity()))
-                .toList();
+                        item.quantity()
+                )).toList();
 
-        return Order.create(cmd.customerName(), cmd.customerAddress(), orderItems);
+        return Order.create(
+                command.customerName(),
+                command.customerAddress(),
+                orderItemList
+        );
     }
 
-    private void reduceStock(List<OrderItem> orderItems, Map<Long, Product> productMap) {
-        for (OrderItem item : orderItems) {
+    private void reduceStock(
+            List<OrderItem> orderItemList,
+            Map<Long, Product> productMap
+    ) {
+        for (OrderItem item : orderItemList) {
             Product product = productMap.get(item.getProductId());
             product.reduceStock(item.getQuantity());
         }
     }
 
-    private Set<Long> extractProductIdSet(List<OrderCommand> commands) {
-        return commands.stream()
+    private Set<Long> extractProductIdSet(List<OrderCommand> commandList) {
+        return commandList.stream()
                 .flatMap(c -> c.items().stream())
                 .map(OrderItemCommand::productId)
                 .collect(Collectors.toSet());
-    }
-
-    private String getProductLockKey(Long productId) {
-        return "PRODUCT_LOCK_" + productId;
     }
 }

@@ -7,6 +7,8 @@ import dev.kurtyoon.pretest.application.port.in.usecase.CreateSingleOrderUseCase
 import dev.kurtyoon.pretest.application.port.out.LockPort;
 import dev.kurtyoon.pretest.application.port.out.OrderRepositoryPort;
 import dev.kurtyoon.pretest.application.port.out.ProductRepositoryPort;
+import dev.kurtyoon.pretest.core.exception.CommonException;
+import dev.kurtyoon.pretest.core.exception.error.ErrorCode;
 import dev.kurtyoon.pretest.domain.model.Order;
 import dev.kurtyoon.pretest.domain.model.OrderItem;
 import dev.kurtyoon.pretest.domain.model.Product;
@@ -114,7 +116,7 @@ public class CreateSingleOrderService implements CreateSingleOrderUseCase {
         return productList.stream()
                 .filter(p -> p.getId().equals(productId))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없음"));
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_PRODUCT));
     }
 
     private String getProductLockKey(Long productId) {

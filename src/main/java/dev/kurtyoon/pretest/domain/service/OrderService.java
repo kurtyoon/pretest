@@ -1,10 +1,12 @@
 package dev.kurtyoon.pretest.domain.service;
 
+import dev.kurtyoon.pretest.common.logging.LoggerUtils;
 import dev.kurtyoon.pretest.core.exception.CommonException;
 import dev.kurtyoon.pretest.core.exception.error.ErrorCode;
 import dev.kurtyoon.pretest.domain.model.Order;
 import dev.kurtyoon.pretest.domain.model.OrderItem;
 import dev.kurtyoon.pretest.domain.model.Product;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +15,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
+
+    private static final Logger log = LoggerUtils.getLogger(OrderService.class);
 
     public void validateOrderWithProductList(
             Order order,
