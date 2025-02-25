@@ -1,10 +1,15 @@
 package dev.kurtyoon.pretest.adapter.out.parser;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.kurtyoon.pretest.application.dto.request.OrderCommand;
 import dev.kurtyoon.pretest.application.dto.request.OrderItemCommand;
 import dev.kurtyoon.pretest.application.port.out.ExcelParserPort;
 import dev.kurtyoon.pretest.common.logging.LoggerUtils;
 import dev.kurtyoon.pretest.core.annotation.Adapter;
+import dev.kurtyoon.pretest.core.exception.CommonException;
+import dev.kurtyoon.pretest.core.exception.error.ErrorCode;
 import org.apache.poi.ss.usermodel.*;
 import org.slf4j.Logger;
 
@@ -16,6 +21,7 @@ import java.util.List;
 public class ApachePoiExcelParserAdapter implements ExcelParserPort {
 
     private static final Logger log = LoggerUtils.getLogger(ApachePoiExcelParserAdapter.class);
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public List<OrderCommand> parse(byte[] excelData) {
@@ -32,12 +38,9 @@ public class ApachePoiExcelParserAdapter implements ExcelParserPort {
                 String customerName = getStringCellValue(row.getCell(0));
                 String customerAddress = getStringCellValue(row.getCell(1));
 
-                Long productId = (long) row.getCell(2).getNumericCellValue();
-                String productName = getStringCellValue(row.getCell(3));
-                int quantity = (int) row.getCell(4).getNumericCellValue();
+                String productJson = getStringCellValue(row.getCell(2));
 
-                List<OrderItemCommand> items = new ArrayList<>();
-                items.add(new OrderItemCommand(productId, productName, quantity));
+                List<OrderItemCommand> items = parseProductJson(productJson);
 
                 OrderCommand cmd = new OrderCommand(customerName, customerAddress, items);
                 results.add(cmd);
@@ -47,6 +50,15 @@ public class ApachePoiExcelParserAdapter implements ExcelParserPort {
         }
 
         return results;
+    }
+
+    private List<OrderItemCommand> parseProductJson(String productJson) {
+        try {
+            return objectMapper.readValue(productJson, new TypeReference<>() {
+            });
+        } catch (JsonProcessingException e) {
+            throw new CommonException(ErrorCode.JSON_PARSING_ERROR);
+        }
     }
 
     private String getStringCellValue(Cell cell) {
