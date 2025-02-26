@@ -37,6 +37,14 @@ public class BulkOrderResult extends SelfValidating<BulkOrderResult> {
         this.validateSelf();
     }
 
+    public List<SingleOrderResult> getSuccessOrders() {
+        return successOrders;
+    }
+
+    public List<FailedOrderResult> getFailedOrders() {
+        return failedOrders;
+    }
+
     public static BulkOrderResult of(List<Order> successOrders, List<FailedOrderResult> failedOrders) {
 
         List<SingleOrderResult> successOrderResults = successOrders.stream()

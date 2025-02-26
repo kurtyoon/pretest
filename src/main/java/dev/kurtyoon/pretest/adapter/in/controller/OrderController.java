@@ -35,11 +35,6 @@ public class OrderController {
 
     @PostMapping(value = "/bulk", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseDto<BulkOrderResult> createBulkOrder(@RequestPart("file") MultipartFile file) throws IOException {
-        return ResponseDto.created(createBulkOrderUseCase.execute(file.getBytes()));
-    }
-
-    @GetMapping("/hello")
-    public ResponseDto<?> testHello() {
-        return ResponseDto.created("안녕");
+        return ResponseDto.ok(createBulkOrderUseCase.execute(file.getBytes()));
     }
 }

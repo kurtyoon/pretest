@@ -40,6 +40,10 @@ public class ResponseDto<T> extends SelfValidating<ResponseDto<T>> {
         this.validateSelf();
     }
 
+    public static <T> ResponseDto<T> ok(@Nullable final T data) {
+        return new ResponseDto<>(HttpStatus.OK, true, data, null);
+    }
+
     public static <T> ResponseDto<T> created(@Nullable final T data) {
         return new ResponseDto<>(HttpStatus.CREATED, true, data, null);
     }

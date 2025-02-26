@@ -14,6 +14,9 @@ public enum ErrorCode {
     INVALID_QUANTITY(40000, HttpStatus.BAD_REQUEST, "주문 수량은 0보다 커야합니다."),
     INVALID_ORDER(40000, HttpStatus.BAD_REQUEST, "요청 주문이 올바르지 않습니다."),
     DUPLICATE_PRODUCT_ORDER(40000, HttpStatus.BAD_REQUEST, "동일 상품에 대한 여러 주문은 불가능합니다."),
+    ALL_ORDERS_FAILED(40000, HttpStatus.BAD_REQUEST, "모든 상품이 재고 부족으로 주문 처리에 실패했습니다."),
+
+
 
     JSON_PARSING_ERROR(40000, HttpStatus.BAD_REQUEST, "입력된 JSON 문자열이 올바르지 않습니다."),
 

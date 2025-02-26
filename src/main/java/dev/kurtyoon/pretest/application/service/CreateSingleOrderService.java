@@ -86,7 +86,9 @@ public class CreateSingleOrderService implements CreateSingleOrderUseCase {
             Order order = createOrderWithItems(command, productMap);
 
             // 4. 재고 확인 및 차감
-            updateProductStock(order.getItems(), productMap);
+            if (!context.validateAndReduceStock(order.getItems(), productMap)) {
+                throw new CommonException(ErrorCode.OUT_OF_STOCK);
+            }
 
             // 5. 변경된 상품 정보 저장
             productRepositoryPort.saveAllProducts(new ArrayList<>(productMap.values()));
@@ -165,24 +167,6 @@ public class CreateSingleOrderService implements CreateSingleOrderUseCase {
                 command.customerAddress(),
                 orderItemList
         );
-    }
-
-    private void updateProductStock(
-            List<OrderItem> orderItemList,
-            Map<Long, Product> productMap
-    ) {
-        for (OrderItem item : orderItemList) {
-            Product product = productMap.get(item.getProductId());
-
-            if (product.getQuantity() < item.getQuantity()) {
-                throw new CommonException(ErrorCode.OUT_OF_STOCK);
-            }
-        }
-
-        for (OrderItem item : orderItemList) {
-            Product product = productMap.get(item.getProductId());
-            product.reduceStock(item.getQuantity());
-        }
     }
 
     private void releaseAllLocks(List<Long> productIdList) {

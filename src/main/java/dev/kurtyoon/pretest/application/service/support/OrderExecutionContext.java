@@ -1,5 +1,8 @@
 package dev.kurtyoon.pretest.application.service.support;
 
+import dev.kurtyoon.pretest.application.dto.request.OrderCommand;
+import dev.kurtyoon.pretest.application.dto.request.OrderItemCommand;
+import dev.kurtyoon.pretest.domain.OrderItem;
 import dev.kurtyoon.pretest.domain.Product;
 
 import java.util.ArrayList;
@@ -41,4 +44,55 @@ public class OrderExecutionContext {
             product.updateQuantity(entry.getValue());
         }
     }
+
+    public Integer getOriginalStock(Long productId) {
+        return originalStockMap.get(productId);
+    }
+
+    public boolean validateAndReduceStock(
+            List<OrderItem> orderItemList,
+            Map<Long, Product> productMap
+    ) {
+
+        for (OrderItem item : orderItemList) {
+            Product product = productMap.get(item.getProductId());
+
+            if (product == null || product.getQuantity() < item.getQuantity()) {
+                return false;
+            }
+        }
+
+        for (OrderItem item : orderItemList) {
+            Product product = productMap.get(item.getProductId());
+            product.reduceStock(item.getQuantity());
+        }
+
+        return true;
+    }
+
+//    public boolean validateSufficientStockForAllOrders(
+//            List<OrderCommand> commandList,
+//            Map<Long, Product> productMap
+//    ) {
+//
+//        Map<Long, Integer> totalRequiredQuantities = new HashMap<>();
+//
+//        for (OrderCommand command : commandList) {
+//            for (OrderItemCommand item : command.items()) {
+//                totalRequiredQuantities.merge(item.productId(), item.quantity(), Integer::sum);
+//            }
+//        }
+//
+//        for (Map.Entry<Long, Integer> entry : totalRequiredQuantities.entrySet()) {
+//            Long productId = entry.getKey();
+//            Integer requiredQuantity = entry.getValue();
+//            Product product = productMap.get(productId);
+//
+//            if (product == null || product.getQuantity() < requiredQuantity) {
+//                return false;
+//            }
+//        }
+//
+//        return true;
+//    }
 }

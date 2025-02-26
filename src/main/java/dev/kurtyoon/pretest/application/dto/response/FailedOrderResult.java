@@ -18,6 +18,14 @@ public class FailedOrderResult extends SelfValidating<FailedOrderResult> {
     @NotBlank(message = "실패 사유는 필수 입력값입니다.")
     private final String reason;
 
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
     public FailedOrderResult(
             String customerName,
             String customerAddress,

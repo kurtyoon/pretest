@@ -60,6 +60,10 @@ public class SingleOrderResult extends SelfValidating<SingleOrderResult> {
         return orderId;
     }
 
+    public String getCustomerName() {
+        return customerName;
+    }
+
     public static SingleOrderResult of(Order order) {
 
         List<OrderItemResult> orderItemResults = order.getItems().stream()
