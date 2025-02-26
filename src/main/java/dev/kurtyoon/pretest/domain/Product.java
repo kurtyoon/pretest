@@ -77,6 +77,10 @@ public class Product {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void updateQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
     /* -------------------------------------------------- */
     /* Static Factory Method ---------------------------- */
     /* -------------------------------------------------- */

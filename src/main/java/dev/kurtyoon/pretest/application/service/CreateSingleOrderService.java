@@ -7,6 +7,7 @@ import dev.kurtyoon.pretest.application.port.in.usecase.CreateSingleOrderUseCase
 import dev.kurtyoon.pretest.application.port.out.LockPort;
 import dev.kurtyoon.pretest.application.port.out.OrderRepositoryPort;
 import dev.kurtyoon.pretest.application.port.out.ProductRepositoryPort;
+import dev.kurtyoon.pretest.application.service.support.OrderExecutionContext;
 import dev.kurtyoon.pretest.common.logging.LoggerUtils;
 import dev.kurtyoon.pretest.core.exception.CommonException;
 import dev.kurtyoon.pretest.core.exception.error.ErrorCode;
@@ -41,35 +42,79 @@ public class CreateSingleOrderService implements CreateSingleOrderUseCase {
     @Override
     public SingleOrderResult execute(OrderCommand command) {
 
+        // 0. 주문 요청에 대한 유효성 검증
+        if (command.items() == null || command.items().isEmpty()) {
+            throw new CommonException(ErrorCode.INVALID_ORDER);
+        }
+
         // 1. 상품 ID 목록 추출 및 정렬
         List<Long> sortedProductIdList = getSortedProductIdList(command);
 
         // 2. 상품 중복 체크
         validateNoDuplicateProducts(sortedProductIdList);
 
-        // 3. Lock 획득
-        for (Long productId : sortedProductIdList) {
-            lockPort.lock(getProductLockKey(productId));
-        }
+        // 3. 실행 컨텍스트 (Lock 관리, 재고 상태 추적)
+        OrderExecutionContext context = new OrderExecutionContext(sortedProductIdList);
 
         try {
-            // 4. 한 번의 DB 조회로 모든 상품 가져오기
-            Map<Long, Product> productMap = getProductMap(sortedProductIdList);
+            // 4. Lock 획득
+            acquireAllLocks(context);
 
-            // 5. 주문 생성
+            // 5. 상품 조회 및 주문 처리
+            return processOrder(command, context);
+        } catch (Exception e) {
+            log.error("Failed to Order: {}", e.getMessage());
+            throw e;
+        } finally {
+            // 획득한 Lock 해제
+            releaseAllLocks(context.getAcquiredLockList());
+        }
+    }
+
+    private SingleOrderResult processOrder(
+            OrderCommand command,
+            OrderExecutionContext context
+    ) {
+        // 1. 상품 조회
+        Map<Long, Product> productMap = getProductMap(context.getProductIdList());
+
+        // 2. 재고 상태 백업
+        context.backupStockState(productMap);
+
+        try {
+            // 3. 주문 생성
             Order order = createOrderWithItems(command, productMap);
 
-            // 6. 재고 확인 및 차감
+            // 4. 재고 확인 및 차감
             updateProductStock(order.getItems(), productMap);
 
-            // 7. 주문 저장 및 변경된 상품 정보 저장
+            // 5. 변경된 상품 정보 저장
             productRepositoryPort.saveAllProducts(new ArrayList<>(productMap.values()));
+
+            // 6. 주문 저장
             Order savedOrder = orderRepositoryPort.saveOrder(order);
 
+            log.info("주문 처리 성공: 고객 = {}, 주문 번호 = {}, 상품 개수 = {}",
+                    savedOrder.getCustomerName(), savedOrder.getId(), savedOrder.getItems().size());
+
             return SingleOrderResult.of(savedOrder);
-        } finally {
-            // 8. 역순으로 Lock 해제
-            releaseAllLocks(sortedProductIdList);
+        } catch (Exception e) {
+            // 재고 복구
+            context.restoreState(productMap);
+
+            // 복구 상태 반영
+            productRepositoryPort.saveAllProducts(new ArrayList<>(productMap.values()));
+
+            throw e;
+        }
+    }
+
+    private void acquireAllLocks(OrderExecutionContext context) {
+        for (Long productId : context.getProductIdList()) {
+            String lockKey = getProductLockKey(productId);
+            lockPort.lock(lockKey);
+            context.lockAcquired(productId);
+            log.debug("Lock acquired for Product: {}", productId);
         }
     }
 
@@ -132,7 +177,10 @@ public class CreateSingleOrderService implements CreateSingleOrderUseCase {
             if (product.getQuantity() < item.getQuantity()) {
                 throw new CommonException(ErrorCode.OUT_OF_STOCK);
             }
+        }
 
+        for (OrderItem item : orderItemList) {
+            Product product = productMap.get(item.getProductId());
             product.reduceStock(item.getQuantity());
         }
     }

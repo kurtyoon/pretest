@@ -36,18 +36,7 @@ public class ProductRepositoryAdapter implements ProductRepositoryPort {
 
     @Override
     @Transactional
-    public Product saveProduct(Product product) {
-
-        ProductEntity entity = productJpaRepository.findById(product.getId())
-                .map(existingEntity -> updateEntity(existingEntity, product))
-                .orElseGet(() -> toEntity(product));
-
-        return toDomain(productJpaRepository.save(entity));
-    }
-
-    @Override
-    @Transactional
-    public List<Product> saveAllProducts(List<Product> productList) {
+    public void saveAllProducts(List<Product> productList) {
 
         List<ProductEntity> entityList = productList.stream()
                 .map(product -> productJpaRepository.findById(product.getId())
@@ -55,9 +44,7 @@ public class ProductRepositoryAdapter implements ProductRepositoryPort {
                         .orElseGet(() -> toEntity(product))
                 ).toList();
 
-        return productJpaRepository.saveAll(entityList).stream()
-                .map(this::toDomain)
-                .toList();
+        productJpaRepository.saveAll(entityList);
     }
 
     private Product toDomain(ProductEntity entity) {

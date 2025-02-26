@@ -10,7 +10,5 @@ public interface ProductRepositoryPort {
 
     List<Product> findAllByIdList(List<Long> productIdList);
 
-    Product saveProduct(Product product);
-
-    List<Product> saveAllProducts(List<Product> productList);
+    void saveAllProducts(List<Product> productList);
 }

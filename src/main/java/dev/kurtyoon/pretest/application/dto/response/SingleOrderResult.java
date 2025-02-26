@@ -56,6 +56,10 @@ public class SingleOrderResult extends SelfValidating<SingleOrderResult> {
         this.validateSelf();
     }
 
+    public Long getOrderId() {
+        return orderId;
+    }
+
     public static SingleOrderResult of(Order order) {
 
         List<OrderItemResult> orderItemResults = order.getItems().stream()
