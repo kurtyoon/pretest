@@ -2,14 +2,15 @@ package dev.kurtyoon.pretest.adapter.out.lock;
 
 import dev.kurtyoon.pretest.application.port.out.LockPort;
 import dev.kurtyoon.pretest.common.logging.LoggerUtils;
-import dev.kurtyoon.pretest.core.annotation.Adapter;
 import org.slf4j.Logger;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
-@Adapter
+/**
+ * 디버깅용 InMemory 기반 Lock
+ */
 public class InMemoryLockAdapter implements LockPort {
 
     private static final Logger log = LoggerUtils.getLogger(InMemoryLockAdapter.class);

@@ -25,6 +25,7 @@ public enum ErrorCode {
     NOT_FOUND_PRODUCT(40401, HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
 
     OUT_OF_STOCK(40900, HttpStatus.CONFLICT, "상품의 재고가 부족합니다."),
+    LOCK_ACQUIRE_FAILED(40900, HttpStatus.CONFLICT, "Lock 획득에 실패했습니다."),
 
     // Internal Server Error
     INTERNAL_SERVER_ERROR(50000, HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 에러입니다."),
