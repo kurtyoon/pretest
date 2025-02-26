@@ -71,6 +71,12 @@ public class CreateSingleOrderService implements CreateSingleOrderUseCase {
         }
     }
 
+    /**
+     * 주문 처리
+     * @param command 주문 요청
+     * @param context 주문 컨텍스트
+     * @return 주문 생성 결과
+     */
     private SingleOrderResult processOrder(
             OrderCommand command,
             OrderExecutionContext context
@@ -111,6 +117,10 @@ public class CreateSingleOrderService implements CreateSingleOrderUseCase {
         }
     }
 
+    /**
+     * 모든 상품에 대한 Lock 획득
+     * @param context 주문 컨텍스트
+     */
     private void acquireAllLocks(OrderExecutionContext context) {
         for (Long productId : context.getProductIdList()) {
             String lockKey = getProductLockKey(productId);
@@ -120,6 +130,11 @@ public class CreateSingleOrderService implements CreateSingleOrderUseCase {
         }
     }
 
+    /**
+     * 상품 ID 목록 추출 및 정렬
+     * @param command 주문 요청
+     * @return 상품 ID 목록
+     */
     private List<Long> getSortedProductIdList(OrderCommand command) {
         return command.items().stream()
                 .map(OrderItemCommand::productId)
@@ -127,6 +142,10 @@ public class CreateSingleOrderService implements CreateSingleOrderUseCase {
                 .toList();
     }
 
+    /**
+     * 상품 중복 체크
+     * @param productIdList 상품 ID 목록
+     */
     private void validateNoDuplicateProducts(List<Long> productIdList) {
         Set<Long> uniqueIdSet = new HashSet<>(productIdList);
         if (uniqueIdSet.size() != productIdList.size()) {
@@ -134,6 +153,11 @@ public class CreateSingleOrderService implements CreateSingleOrderUseCase {
         }
     }
 
+    /**
+     * 상품 목록 조회
+     * @param productIdList 상품 ID 목록
+     * @return 상품 목록
+     */
     private Map<Long, Product> getProductMap(List<Long> productIdList) {
         List<Product> productList = productRepositoryPort.findAllByIdList(productIdList);
 
@@ -146,6 +170,12 @@ public class CreateSingleOrderService implements CreateSingleOrderUseCase {
                 .collect(Collectors.toMap(Product::getId, product -> product));
     }
 
+    /**
+     * 주문 생성
+     * @param command 주문 요청
+     * @param productMap 상품 목록
+     * @return 주문
+     */
     private Order createOrderWithItems(
             OrderCommand command,
             Map<Long, Product> productMap
@@ -169,6 +199,10 @@ public class CreateSingleOrderService implements CreateSingleOrderUseCase {
         );
     }
 
+    /**
+     * 모든 상품에 대한 Lock 해제
+     * @param productIdList 상품 ID 목록
+     */
     private void releaseAllLocks(List<Long> productIdList) {
 
         // 역순으로 락 해제
@@ -183,6 +217,11 @@ public class CreateSingleOrderService implements CreateSingleOrderUseCase {
         }
     }
 
+    /**
+     * 상품 Lock 키 생성
+     * @param productId 상품 ID
+     * @return 상품 Lock 키
+     */
     private String getProductLockKey(Long productId) {
         return String.format("PRODUCT_LOCK:%d", productId);
     }

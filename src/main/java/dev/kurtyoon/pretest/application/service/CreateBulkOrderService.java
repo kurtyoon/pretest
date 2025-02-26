@@ -75,6 +75,10 @@ public class CreateBulkOrderService implements CreateBulkOrderUseCase {
         }
     }
 
+    /**
+     * 각 주문 내 중복 상품 검증
+     * @param commandList 주문 요청 목록
+     */
     private void validateNoDuplicateInEachOrder(List<OrderCommand> commandList) {
         for (OrderCommand command : commandList) {
             Set<Long> productIds = new HashSet<>();
@@ -86,6 +90,11 @@ public class CreateBulkOrderService implements CreateBulkOrderUseCase {
         }
     }
 
+    /**
+     * 필요한 모든 상품 ID 추출 및 정렬
+     * @param commandList 주문 요청 목록
+     * @return 상품 ID 목록
+     */
     private List<Long> getSortedUniqueProductIds(List<OrderCommand> commandList) {
 
         return commandList.stream()
@@ -93,6 +102,10 @@ public class CreateBulkOrderService implements CreateBulkOrderUseCase {
                 .map(OrderItemCommand::productId).distinct().sorted().collect(Collectors.toList());
     }
 
+    /**
+     * 모든 상품에 대한 Lock 획득
+     * @param context 주문 컨텍스트
+     */
     private void acquireAllLocks(OrderExecutionContext context) {
         for (Long productId : context.getProductIdList()) {
             lockPort.lock(getProductLockKey(productId));
@@ -101,6 +114,10 @@ public class CreateBulkOrderService implements CreateBulkOrderUseCase {
         }
     }
 
+    /**
+     * 모든 상품에 대한 Lock 해제
+     * @param productIdList 상품 ID 목록
+     */
     private void releaseAllLocks(List<Long> productIdList) {
         for (int i = productIdList.size() - 1; i >= 0; i--) {
             Long productId = productIdList.get(i);
@@ -114,6 +131,12 @@ public class CreateBulkOrderService implements CreateBulkOrderUseCase {
         }
     }
 
+    /**
+     * 여러 주문을 처리
+     * @param commandList 주문 요청 목록
+     * @param context 주문 컨텍스트
+     * @return 주문 생성 결과
+     */
     private BulkOrderResult processBulkOrder(
             List<OrderCommand> commandList,
             OrderExecutionContext context
@@ -178,12 +201,22 @@ public class CreateBulkOrderService implements CreateBulkOrderUseCase {
         }
     }
 
+    /**
+     * 상품 목록 조회
+     * @param productIds 상품 ID 목록
+     * @return 상품 목록
+     */
     private Map<Long, Product> fetchProducts(List<Long> productIds) {
         List<Product> products = productRepositoryPort.findAllByIdList(productIds);
         return products.stream()
                 .collect(Collectors.toMap(Product::getId, product -> product));
     }
 
+    /**
+     * 상품 존재 여부 검증
+     * @param command 주문 요청
+     * @param productMap 상품 목록
+     */
     private void validateProductExists(
             OrderCommand command,
             Map<Long, Product> productMap
@@ -196,6 +229,12 @@ public class CreateBulkOrderService implements CreateBulkOrderUseCase {
         }
     }
 
+    /**
+     * 주문 생성
+     * @param command 주문 요청
+     * @param productMap 상품 목록
+     * @return 주문
+     */
     private Order createOrder(
             OrderCommand command,
             Map<Long, Product> productMap
@@ -219,6 +258,11 @@ public class CreateBulkOrderService implements CreateBulkOrderUseCase {
         );
     }
 
+    /**
+     * 상품 Lock 키 생성
+     * @param productId 상품 ID
+     * @return 상품 Lock 키
+     */
     private String getProductLockKey(Long productId) {
         return String.format("PRODUCT_LOCK:%d", productId);
     }
