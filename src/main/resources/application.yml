@@ -33,3 +33,8 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: create
+
+logging:
+  level:
+    root: INFO
+    dev.kurtyoon.pretest: DEBUG

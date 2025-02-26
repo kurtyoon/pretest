@@ -18,6 +18,10 @@ public class LoggerUtils {
         logger.info(message, args);
     }
 
+    public static void debug(Logger logger, String message, Object... args) {
+        logger.debug(message, args);
+    }
+
     public static void error(Logger logger, String message, Object... args) {
         logger.error(message, args);
     }
