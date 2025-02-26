@@ -43,10 +43,6 @@ public class OrderExecutionContext {
         }
     }
 
-    public Integer getOriginalStock(Long productId) {
-        return originalStockMap.get(productId);
-    }
-
     public boolean validateAndReduceStock(
             List<OrderItem> orderItemList,
             Map<Long, Product> productMap

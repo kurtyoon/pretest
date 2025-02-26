@@ -69,14 +69,6 @@ public class OrderEntity {
         return customerAddress;
     }
 
-    public Integer getTotalPrice() {
-        return totalPrice;
-    }
-
-    public LocalDateTime getOrderedAt() {
-        return orderedAt;
-    }
-
     public List<OrderItemEntity> getOrderItems() {
         return orderItems;
     }

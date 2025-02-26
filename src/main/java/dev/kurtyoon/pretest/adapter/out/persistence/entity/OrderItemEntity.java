@@ -76,10 +76,6 @@ public class OrderItemEntity {
         return price;
     }
 
-    public Integer getTotalPrice() {
-        return totalPrice;
-    }
-
     /* -------------------------------------------------- */
     /* Update Order ------------------------------------- */
     /* -------------------------------------------------- */
