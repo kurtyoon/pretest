@@ -1,7 +1,5 @@
 package dev.kurtyoon.pretest.application.service.support;
 
-import dev.kurtyoon.pretest.application.dto.request.OrderCommand;
-import dev.kurtyoon.pretest.application.dto.request.OrderItemCommand;
 import dev.kurtyoon.pretest.domain.OrderItem;
 import dev.kurtyoon.pretest.domain.Product;
 
@@ -69,30 +67,4 @@ public class OrderExecutionContext {
 
         return true;
     }
-
-//    public boolean validateSufficientStockForAllOrders(
-//            List<OrderCommand> commandList,
-//            Map<Long, Product> productMap
-//    ) {
-//
-//        Map<Long, Integer> totalRequiredQuantities = new HashMap<>();
-//
-//        for (OrderCommand command : commandList) {
-//            for (OrderItemCommand item : command.items()) {
-//                totalRequiredQuantities.merge(item.productId(), item.quantity(), Integer::sum);
-//            }
-//        }
-//
-//        for (Map.Entry<Long, Integer> entry : totalRequiredQuantities.entrySet()) {
-//            Long productId = entry.getKey();
-//            Integer requiredQuantity = entry.getValue();
-//            Product product = productMap.get(productId);
-//
-//            if (product == null || product.getQuantity() < requiredQuantity) {
-//                return false;
-//            }
-//        }
-//
-//        return true;
-//    }
 }
